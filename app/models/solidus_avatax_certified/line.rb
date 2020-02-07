@@ -61,7 +61,7 @@ module SolidusAvataxCertified
         amount: shipment.discounted_amount.to_f,
         description: 'Shipping Charge',
         taxCode: shipment.shipping_method_tax_code,
-        discounted: false,
+        discounted: !shipment.promo_total.zero?,
         taxIncluded: tax_included_in_price?(shipment),
         addresses: {
           shipFrom: shipment.stock_location.to_avatax_hash,
@@ -155,7 +155,10 @@ module SolidusAvataxCertified
     end
 
     def discounted?(line_item)
-      line_item.adjustments.promotion.eligible.any? || order.adjustments.promotion.eligible.any?
+      line_item.adjustments.any_price_matches? ||
+      line_item.adjustments.promotion.eligible.any? ||
+        order.adjustments.promotion.eligible.any? ||
+        order.adjustments.where('amount < 0').where(source: nil).eligible.any?
     end
 
     def tax_included_in_price?(item)
