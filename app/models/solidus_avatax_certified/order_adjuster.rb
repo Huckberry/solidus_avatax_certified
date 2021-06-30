@@ -1,6 +1,7 @@
-module SolidusAvataxCertified
-  class OrderAdjuster < Spree::Tax::OrderAdjuster
+# frozen_string_literal: true
 
+module SolidusAvataxCertified
+  class OrderAdjuster < ::Spree::Tax::OrderAdjuster
     def adjust!
       if %w(cart address delivery).include?(order.state)
         return (order.line_items + order.shipments)
